@@ -1,5 +1,24 @@
-require 'selenium-webdriver'
-require 'capybara'
+# require 'selenium-webdriver'
+# require 'capybara'
+#
+# Capybara.default_driver = :chrome
+#
+# Capybara.register_driver :chrome do |app|
+#   Capybara::Selenium::Driver.new(app, :browser => :chrome)
+# end
+#
+# session = Capybara::Session.new(:chrome)
+
+# Updated 11/30/16
+
+require 'capybara/poltergeist'
+require 'pry'
+
+Capybara.register_driver :poltergeist do |app|
+  Capybara::Poltergeist::Driver.new(app)
+end
+
+session = Capybara::Session.new(:poltergeist)
 
 puts ''
 puts "Where are you coming from?"
@@ -23,6 +42,8 @@ end
 hour = time.split(":")[0]
 minutes = time.split(":")[1].to_i
 
+
+
 case minutes
 when (0..14)
     time = hour + ':' + '00'
@@ -33,14 +54,6 @@ when (0..14)
   else
     time = hour + ':' + '45'
 end
-
-Capybara.default_driver = :chrome
-
-Capybara.register_driver :chrome do |app|
-  Capybara::Selenium::Driver.new(app, :browser => :chrome)
-end
-
-session = Capybara::Session.new(:chrome)
 
 lirr_site = "http://lirr42.mta.info/index.php"
 
@@ -53,6 +66,7 @@ session.select arrival, from: 'ToStation '
 session.select time, from: 'RequestTime'
 
 session.find(:xpath, '//*[@id="sftrip"]/form/table/tbody/tr[5]/td[2]/input[1]').click
+
 
 date = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]').text.split(" ")[2..5].join(" ")
 
