@@ -12,7 +12,6 @@
 # Updated 11/30/16
 
 require 'capybara/poltergeist'
-require 'pry'
 
 Capybara.register_driver :poltergeist do |app|
   Capybara::Poltergeist::Driver.new(app)
@@ -42,8 +41,6 @@ end
 hour = time.split(":")[0]
 minutes = time.split(":")[1].to_i
 
-
-
 case minutes
 when (0..14)
     time = hour + ':' + '00'
@@ -55,7 +52,7 @@ when (0..14)
     time = hour + ':' + '45'
 end
 
-lirr_site = "http://lirr42.mta.info/index.php"
+lirr_site = "http://lirr42.mta.info"
 
 session.visit(lirr_site)
 
@@ -67,12 +64,12 @@ session.select time, from: 'RequestTime'
 
 session.find(:xpath, '//*[@id="sftrip"]/form/table/tbody/tr[5]/td[2]/input[1]').click
 
-
 date = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]').text.split(" ")[2..5].join(" ")
 
-i = 4
 departures = []
 arrivals = []
+
+i = 4
 
 3.times do
   d = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + i.to_s + ']/td[2]').text
@@ -81,11 +78,31 @@ arrivals = []
 end
 
 j = 4
+
 3.times do
   a = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + j.to_s + ']/td[4]').text
   arrivals << a
   j += 1
 end
+
+session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[1]/tbody/tr/td[2]/a').click
+
+i = 2
+
+5.times do
+  d = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + i.to_s + ']/td[2]').text
+  departures << d
+  i += 1
+end
+
+j = 2
+
+5.times do
+  a = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + j.to_s + ']/td[4]').text
+  arrivals << a
+  j += 1
+end
+
 
 c = 0
 
@@ -95,7 +112,9 @@ puts ''
 puts departure + ' to ' + arrival
 puts ''
 
-3.times do
+num = departures.length
+
+num.times do
   puts '//////////////////'
   puts ''
   puts 'Departure: ' + departures[c]
