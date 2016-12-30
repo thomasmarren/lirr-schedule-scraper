@@ -9,7 +9,7 @@
 #
 # session = Capybara::Session.new(:chrome)
 
-# Updated 11/30/16
+# Updated 12/30/16
 
 require 'capybara/poltergeist'
 
