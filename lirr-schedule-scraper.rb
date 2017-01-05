@@ -11,121 +11,6 @@
 
 # Updated 12/30/16
 
-require 'capybara/poltergeist'
-
-Capybara.register_driver :poltergeist do |app|
-  Capybara::Poltergeist::Driver.new(app)
-end
-
-session = Capybara::Session.new(:poltergeist)
-
-puts ''
-puts "Where are you coming from?"
-
-departure = gets.chomp.downcase.split.map(&:capitalize).join(' ')
-
-puts ''
-puts "Where are you going?"
-
-arrival = gets.chomp.downcase.split.map(&:capitalize).join(' ')
-
-puts ''
-puts "When are you leaving? ('now' for current time)"
-
-time = gets.chomp
-
-if time == 'now'
-  time = Time.now.strftime('%I:%M')
-end
-
-hour = time.split(":")[0]
-minutes = time.split(":")[1].to_i
-
-case minutes
-when (0..14)
-    time = hour + ':' + '00'
-  when (15..29)
-    time = hour + ':' + '15'
-  when (30..44)
-    time = hour + ':' + '30'
-  else
-    time = hour + ':' + '45'
-end
-
-lirr_site = "http://lirr42.mta.info"
-
-session.visit(lirr_site)
-
-session.select departure, from: 'FromStation '
-
-session.select arrival, from: 'ToStation '
-
-session.select time, from: 'RequestTime'
-
-session.find(:xpath, '//*[@id="sftrip"]/form/table/tbody/tr[5]/td[2]/input[1]').click
-
-date = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]').text.split(" ")[2..5].join(" ")
-
-departures = []
-arrivals = []
-
-i = 4
-
-3.times do
-  d = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + i.to_s + ']/td[2]').text
-  departures << d
-  i += 1
-end
-
-j = 4
-
-3.times do
-  a = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + j.to_s + ']/td[4]').text
-  arrivals << a
-  j += 1
-end
-
-session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[1]/tbody/tr/td[2]/a').click
-
-i = 2
-
-5.times do
-  d = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + i.to_s + ']/td[2]').text
-  departures << d
-  i += 1
-end
-
-j = 2
-
-5.times do
-  a = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + j.to_s + ']/td[4]').text
-  arrivals << a
-  j += 1
-end
-
-
-c = 0
-
-puts ''
-puts date
-puts ''
-puts departure + ' to ' + arrival
-puts ''
-
-num = departures.length
-
-num.times do
-  puts '//////////////////'
-  puts ''
-  puts 'Departure: ' + departures[c]
-  puts 'Arrival: ' + arrivals[c]
-  puts ''
-  c += 1
-end
-
-puts '//////////////////'
-puts ''
-
 STATIONS = [
 'Albertson',
 'Amagansett',
@@ -253,3 +138,133 @@ STATIONS = [
 'Wyandanch',
 'Yaphank'
 ]
+
+
+require 'capybara/poltergeist'
+
+Capybara.register_driver :poltergeist do |app|
+  Capybara::Poltergeist::Driver.new(app)
+end
+
+session = Capybara::Session.new(:poltergeist)
+
+puts ''
+puts "Where are you coming from?"
+
+departure = gets.chomp.downcase.split.map(&:capitalize).join(' ')
+
+until STATIONS.include?(departure)
+  puts ''
+  puts "Sorry that is not a valid station."
+  puts "Where are you coming from?"
+  departure = gets.chomp.downcase.split.map(&:capitalize).join(' ')
+end
+
+puts ''
+puts "Where are you going?"
+
+arrival = gets.chomp.downcase.split.map(&:capitalize).join(' ')
+
+until STATIONS.include?(arrival)
+  puts ''
+  puts "Sorry that is not a valid station."
+  puts "Where are you going?"
+  departure = gets.chomp.downcase.split.map(&:capitalize).join(' ')
+end
+
+puts ''
+puts "When are you leaving? ex. 04:30 ('now' for current time)"
+
+time = gets.chomp
+
+if time == 'now'
+  time = Time.now.strftime('%I:%M')
+end
+
+hour = time.split(":")[0]
+minutes = time.split(":")[1].to_i
+
+case minutes
+when (0..14)
+    time = hour + ':' + '00'
+  when (15..29)
+    time = hour + ':' + '15'
+  when (30..44)
+    time = hour + ':' + '30'
+  else
+    time = hour + ':' + '45'
+end
+
+lirr_site = "http://lirr42.mta.info"
+
+session.visit(lirr_site)
+
+session.select departure, from: 'FromStation '
+
+session.select arrival, from: 'ToStation '
+
+session.select time, from: 'RequestTime'
+
+session.find(:xpath, '//*[@id="sftrip"]/form/table/tbody/tr[5]/td[2]/input[1]').click
+
+date = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]').text.split(" ")[2..5].join(" ")
+
+departures = []
+arrivals = []
+
+i = 4
+
+3.times do
+  d = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + i.to_s + ']/td[2]').text
+  departures << d
+  i += 1
+end
+
+j = 4
+
+3.times do
+  a = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + j.to_s + ']/td[4]').text
+  arrivals << a
+  j += 1
+end
+
+session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[1]/tbody/tr/td[2]/a').click
+
+i = 2
+
+5.times do
+  d = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + i.to_s + ']/td[2]').text
+  departures << d
+  i += 1
+end
+
+j = 2
+
+5.times do
+  a = session.find(:xpath, '//*[@id="contentbox"]/div[1]/div[1]/table[2]/tbody/tr[' + j.to_s + ']/td[4]').text
+  arrivals << a
+  j += 1
+end
+
+
+c = 0
+
+puts ''
+puts date
+puts ''
+puts departure + ' to ' + arrival
+puts ''
+
+num = departures.length
+
+num.times do
+  puts '//////////////////'
+  puts ''
+  puts 'Departure: ' + departures[c]
+  puts 'Arrival: ' + arrivals[c]
+  puts ''
+  c += 1
+end
+
+puts '//////////////////'
+puts ''
